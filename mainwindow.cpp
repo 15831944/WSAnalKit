@@ -67,27 +67,32 @@ void MainWindow::setLogView(bool view)
 {
 }
 
-QList<int> random(int nImg, int nSize)
+/*
+ * 生成 [ 0 - nMax ]范围内不重复的数据 nCount 个
+ * 注意， nMax 不小于 nCount
+ *
+ */
+QList<int> random(int nMax, int nCount)
 {
     QList<int> intList;
     int   i=0, m=0;
     QTime time;
     for(i=0;;)
     {
-        if (intList.count() > nSize)
+        if (intList.count() > nCount)
             break;
 
         int     randn;
         time    = QTime::currentTime();
         qsrand(time.msec()*qrand()*qrand()*qrand()*qrand()*qrand()*qrand());
-        randn   = qrand()%nImg;
+        randn   = qrand()%nMax;
         m=0;
 
         while(m<i && intList.at(m)!=randn)
             m++;
 
         if(m==i)            { intList.append(randn); i++;}
-        else if(i==nImg)    break;
+        else if(i==nMax)    break;
         else                continue;
     }
 
