@@ -7,8 +7,15 @@
 #include <QByteArray>
 #include <QVector>
 
+#include <QQuickWidget>
+#include <QQuickView>
+#include <QQmlEngine>
+#include <QQmlContext>
+#include <QQmlComponent>
+
 #include "wsconstant.h"
 #include "anakit.h"
+#include "waveanaldatamodel.h"
 
 /**
  * 波形显示待办事项：
@@ -25,6 +32,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
+    setupOtherUi();
 
     //隐藏左侧报文包信息树表头
     ui->treeAllMsg->header()->hide();
@@ -56,6 +65,64 @@ MainWindow::~MainWindow()
 
 void MainWindow::setLogView(bool view)
 {
+}
+
+QList<int> random(int nImg, int nSize)
+{
+    QList<int> intList;
+    int   i=0, m=0;
+    QTime time;
+    for(i=0;;)
+    {
+        if (intList.count() > nSize)
+            break;
+
+        int     randn;
+        time    = QTime::currentTime();
+        qsrand(time.msec()*qrand()*qrand()*qrand()*qrand()*qrand()*qrand());
+        randn   = qrand()%nImg;
+        m=0;
+
+        while(m<i && intList.at(m)!=randn)
+            m++;
+
+        if(m==i)            { intList.append(randn); i++;}
+        else if(i==nImg)    break;
+        else                continue;
+    }
+
+    return intList;
+}
+
+void MainWindow::setupOtherUi()
+{
+    QTabWidget *tabw = ui->tabWidget;
+
+    // 波形图
+    m_qwWaveAnal = new QQuickWidget();
+    m_qwWaveAnal->setObjectName(QStringLiteral("qwWaveAnal"));
+    m_qwWaveAnal->setResizeMode(QQuickWidget::SizeRootObjectToView );
+    QQmlComponent *component = new QQmlComponent(m_qwWaveAnal->engine());
+    component->setData("import QtQuick 2.4\n import XjQmlUi 1.0 \n WaveAnalDemo{}", QUrl());
+    m_qwWaveAnal->setContent(QUrl(), component, component->create());
+    m_qwWaveData = new WaveAnalDataModel();
+
+    for (int i = 0; i < 10; ++i)
+    {
+        int nMax = 2000;
+        int nCount = 1000;
+        QList<int> x = random(nMax, nCount);
+        QList<int> y = random(nMax, nCount);
+
+        for (int j = 0; j < 1000; ++j)
+        {
+            m_qwWaveData->append_x(i, x.at(j) - nMax / 2);
+            m_qwWaveData->append_y(i, y.at(j) - nMax / 2);
+        }
+    }
+    m_qwWaveAnal->rootContext()->setContextProperty("waveModel", m_qwWaveData);
+
+    tabw->addTab(m_qwWaveAnal, QStringLiteral("波形分析 - 随机样例"));
 }
 
 /**
@@ -205,6 +272,7 @@ void MainWindow::on_treeAllMsg_clicked(const QModelIndex &index)
         logPrint("点击SV9-2链路 " + pItem->text(0));
         //绘制波形图
         drawSVWaveWindow(pConnection);
+        drawSVWaveWindowByQml(pConnection);
         //填乱七八糟的采样数据表
     }
     else if(pConnection->nconnectapptype == PROTOAPPTYPE_GOOSE)
@@ -427,6 +495,72 @@ void MainWindow::drawSVWaveWindow(CAPCONNECTINFO* pConnection)
     phaseTracerText->setPadding(QMargins(4, 4, 4, 4));//设置文本所在矩形的margins
     phaseTracerText->setPen(QPen(Qt::black));//设置
     ui->wdtWave->replot();
+}
+
+//画采样值波形图（Qml插件方式）
+void MainWindow::drawSVWaveWindowByQml(CAPCONNECTINFO* pConnection)
+{
+    //准备采样数据
+    MAP_CAPMSGINFO *pMapCapMsgInfo = &pConnection->map_capmsginfo;
+    int smpCount = pMapCapMsgInfo->size();
+    QVector<double> x(smpCount), y(smpCount);
+    m_qwWaveData->reset();
+    SMV_INFO_STRUCT *pSMVInfo;
+    ASDU_INFO_STRUCT *pAsdu;
+    CAPMSGGININFO* pMsgInfo;
+    std::map <int, CAPMSGGININFO* >::iterator iter;
+    int smp_index=0; //采样点序号
+    int chn_index=0; //通道序号
+    int chn_count=0; //通道个数
+
+    //获取通道个数
+    iter = pMapCapMsgInfo->begin();
+    if(iter == pMapCapMsgInfo->end())
+        return;
+    pMsgInfo = iter->second;
+    pSMVInfo = (SMV_INFO_STRUCT*)(pMsgInfo->pparserdstruct);
+    chn_count = pSMVInfo->p_asdu_info_struct->n_data_num;
+
+    //画所有通道波形图
+    for(chn_index = 0; chn_index < chn_count; chn_index++)
+    {
+//        if (chn_index != 2)
+//            continue;
+
+        for(smp_index=0, iter = pMapCapMsgInfo->begin(); iter!=pMapCapMsgInfo->end();iter++, smp_index++)
+        {
+            if (smp_index > 1000)
+                break;
+
+            pMsgInfo = iter->second;
+            pSMVInfo = (SMV_INFO_STRUCT*)(pMsgInfo->pparserdstruct);
+            pAsdu = pSMVInfo->p_asdu_info_struct;
+
+            x[smp_index] = smp_index;
+            qreal y_val = pAsdu->p_smv_data_struct[chn_index].n_value / 10.0;
+            y[smp_index] = pAsdu->p_smv_data_struct[chn_index].n_value/10.0;// + chn_index*2000;
+//            if(smp_index > ui->wdtWave->xAxis->range().upper)
+//                break;
+            m_qwWaveData->append_x(chn_index, 0);
+            m_qwWaveData->append_y(chn_index, y_val);
+        }
+    }
+
+    // 波形图
+    if(m_qwWaveData)
+        m_qwWaveData->setTest(pConnection->csrc2_mac);
+
+    m_qwWaveAnal = new QQuickWidget();
+    m_qwWaveAnal->setObjectName(QStringLiteral("qwWaveAnal"));
+    m_qwWaveAnal->setResizeMode(QQuickWidget::SizeRootObjectToView );
+    QQmlComponent *component = new QQmlComponent(m_qwWaveAnal->engine());
+    component->setData("import QtQuick 2.4\n import XjQmlUi 1.0 \n WaveAnalDemo{}", QUrl());
+    m_qwWaveAnal->setContent(QUrl(), component, component->create());
+    m_qwWaveAnal->rootContext()->setContextProperty("waveModel", m_qwWaveData);
+
+    QTabWidget *tabw = ui->tabWidget;
+    int idx = tabw->addTab(m_qwWaveAnal, QStringLiteral("波形分析"));
+    tabw->setCurrentIndex(idx);
 }
 
 //输出日志到下面的日志窗口

@@ -34,7 +34,8 @@ SOURCES += main.cpp\
     common/globalfun.cpp \
     common/XJString.cpp \
     qcustomplot.cpp \
-    WaveWidget.cpp
+    WaveWidget.cpp \
+    waveanaldatamodel.cpp
 
 HEADERS  += mainwindow.h \
     anakit.h \
@@ -56,11 +57,19 @@ HEADERS  += mainwindow.h \
     analyzer/ScanDissectPacketer.h \
     common/Lock.h \
     qcustomplot.h \
-    WaveWidget.h
+    WaveWidget.h \
+    waveanaldatamodel.h
 
 win32{
     DEFINES += OS_WINDOWS
     DEFINES -= UNICODE
 }
+
+########################
+
+QT += quickwidgets
+
+RESOURCES += \
+    $$[QT_INSTALL_QML]/icons/icons.qrc
 
 FORMS    += mainwindow.ui
