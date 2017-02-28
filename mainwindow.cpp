@@ -114,12 +114,12 @@ void MainWindow::setupOtherUi()
 
     for (int i = 0; i < 10; ++i)
     {
-        int nMax = 2000;
-        int nCount = 1000;
+        int nMax = 100;
+        int nCount = 50;
         QList<int> x = random(nMax, nCount);
         QList<int> y = random(nMax, nCount);
 
-        for (int j = 0; j < 1000; ++j)
+        for (int j = 0; j < 50; ++j)
         {
             m_qwWaveData->append_x(i, x.at(j) - nMax / 2);
             m_qwWaveData->append_y(i, y.at(j) - nMax / 2);
@@ -534,7 +534,7 @@ void MainWindow::drawSVWaveWindowByQml(CAPCONNECTINFO* pConnection)
 
         for(smp_index=0, iter = pMapCapMsgInfo->begin(); iter!=pMapCapMsgInfo->end();iter++, smp_index++)
         {
-            if (smp_index > 1000)
+            if (smp_index > 1060)
                 break;
 
             pMsgInfo = iter->second;

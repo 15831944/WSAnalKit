@@ -19,15 +19,26 @@ public:
         return m_test;
     }
 
-    void reset();
+    Q_INVOKABLE void reset();
 
     Q_INVOKABLE QList<qreal> x_data(int idx);
-    void append_x(int idx, qreal x);
+    Q_INVOKABLE void append_x(int idx, qreal x);
 
     Q_INVOKABLE QList<qreal> y_data(int idx);
-    void append_y(int idx, qreal y);
+    Q_INVOKABLE void append_y(int idx, qreal y);
 
     Q_INVOKABLE int chn_count() { return m_x.count(); }
+
+    Q_INVOKABLE int rows() { return m_x.count(); }
+
+    Q_INVOKABLE int data_length() { if (m_x.count() > 0) return m_x.at(0).length(); else return 0; }
+
+    Q_INVOKABLE int cols() { if (m_x.count() > 0) return m_x.at(0).length(); else return 0; }
+
+    QList<int> random(int nMax, int nCount);
+    Q_INVOKABLE void buildData(int rows, int nMaxValue, int samplePoints);
+
+    Q_INVOKABLE void queenNewData(int nMaxValue, int samplePoints);
 
 signals:
     void testChanged(QString arg);
