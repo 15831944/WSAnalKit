@@ -70,6 +70,6 @@ win32{
 QT += quickwidgets
 
 RESOURCES += \
-    $$[QT_INSTALL_QML]/icons/icons.qrc
+    $$[QT_INSTALL_QML]/icons/icons_all.qrc
 
 FORMS    += mainwindow.ui
