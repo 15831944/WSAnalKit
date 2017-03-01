@@ -529,13 +529,8 @@ void MainWindow::drawSVWaveWindowByQml(CAPCONNECTINFO* pConnection)
     //画所有通道波形图
     for(chn_index = 0; chn_index < chn_count; chn_index++)
     {
-//        if (chn_index != 2)
-//            continue;
-
         for(smp_index=0, iter = pMapCapMsgInfo->begin(); iter!=pMapCapMsgInfo->end();iter++, smp_index++)
         {
-            if (smp_index > 1060)
-                break;
 
             pMsgInfo = iter->second;
             pSMVInfo = (SMV_INFO_STRUCT*)(pMsgInfo->pparserdstruct);

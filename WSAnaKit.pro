@@ -73,3 +73,28 @@ RESOURCES += \
     $$[QT_INSTALL_QML]/icons/icons_all.qrc
 
 FORMS    += mainwindow.ui
+
+message($$OUT_PWD)
+
+#----------------------------------------------------------------
+win32{
+    dst_file = $$PWD\\deploy\\
+
+    CONFIG(debug, debug|release){
+        src_file = $$OUT_PWD\debug\\$${TARGET}.exe
+    }else{
+        src_file = $$OUT_PWD\release\\$${TARGET}.exe
+    }
+
+    # dst_file 最后的 \\ 是必须的，用来标示 xcopy 到一个文件夹，若不存在，创建之
+
+    # Replace slashes in paths with backslashes for Windows
+    src_file ~= s,/,\\,g
+    dst_file ~= s,/,\\,g
+
+    system(xcopy $$src_file $$dst_file /y /e)
+
+    message($$dst_file)
+    message($$src_file)
+}
+#------------copy Target File to deploy folder end---------------
