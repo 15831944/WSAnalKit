@@ -108,7 +108,7 @@ void MainWindow::setupOtherUi()
     m_qwWaveAnal->setObjectName(QStringLiteral("qwWaveAnal"));
     m_qwWaveAnal->setResizeMode(QQuickWidget::SizeRootObjectToView );
     QQmlComponent *component = new QQmlComponent(m_qwWaveAnal->engine());
-    component->setData("import QtQuick 2.4\n import XjQmlUi 1.0 \n WaveAnalDemo{}", QUrl());
+    component->setData("import QtQuick 2.4\n import XjQmlUi 1.0 \n WaveChartAnal{}", QUrl());
     m_qwWaveAnal->setContent(QUrl(), component, component->create());
     m_qwWaveData = new WaveAnalDataModel();
 
@@ -541,7 +541,7 @@ void MainWindow::drawSVWaveWindowByQml(CAPCONNECTINFO* pConnection)
             y[smp_index] = pAsdu->p_smv_data_struct[chn_index].n_value/10.0;// + chn_index*2000;
 //            if(smp_index > ui->wdtWave->xAxis->range().upper)
 //                break;
-            m_qwWaveData->append_x(chn_index, 0);
+            m_qwWaveData->append_x(chn_index, smp_index);
             m_qwWaveData->append_y(chn_index, y_val);
         }
     }
@@ -554,7 +554,7 @@ void MainWindow::drawSVWaveWindowByQml(CAPCONNECTINFO* pConnection)
     m_qwWaveAnal->setObjectName(QStringLiteral("qwWaveAnal"));
     m_qwWaveAnal->setResizeMode(QQuickWidget::SizeRootObjectToView );
     QQmlComponent *component = new QQmlComponent(m_qwWaveAnal->engine());
-    component->setData("import QtQuick 2.4\n import XjQmlUi 1.0 \n WaveAnalDemo{}", QUrl());
+    component->setData("import QtQuick 2.4\n import XjQmlUi 1.0 \n WaveChartAnal{}", QUrl());
     m_qwWaveAnal->setContent(QUrl(), component, component->create());
     m_qwWaveAnal->rootContext()->setContextProperty("waveModel", m_qwWaveData);
 
