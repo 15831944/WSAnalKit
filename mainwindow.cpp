@@ -15,7 +15,7 @@
 
 #include "wsconstant.h"
 #include "anakit.h"
-#include "waveanaldatamodel.h"
+#include "stores/waveanaldatamodel.h"
 
 /**
  * 波形显示待办事项：
@@ -61,6 +61,8 @@ MainWindow::MainWindow(QWidget *parent) :
 MainWindow::~MainWindow()
 {
     delete ui;
+    delete m_qwWaveData;
+    delete m_qwWaveData2;
 }
 
 void MainWindow::setLogView(bool view)
@@ -103,6 +105,8 @@ void MainWindow::setupOtherUi()
 {
     QTabWidget *tabw = ui->tabWidget;
 
+    connect(ui->tabWidget, SIGNAL(currentChanged(int)), this, SLOT(currentChanged(int)));
+
     // 波形图
     m_qwWaveAnal = new QQuickWidget();
     m_qwWaveAnal->setObjectName(QStringLiteral("qwWaveAnal"));
@@ -119,7 +123,7 @@ void MainWindow::setupOtherUi()
         QList<int> x = random(nMax, nCount);
         QList<int> y = random(nMax, nCount);
 
-        for (int j = 0; j < 50; ++j)
+        for (int j = 0; j < nCount; ++j)
         {
             m_qwWaveData->append_x(i, x.at(j) - nMax / 2);
             m_qwWaveData->append_y(i, y.at(j) - nMax / 2);
@@ -127,7 +131,47 @@ void MainWindow::setupOtherUi()
     }
     m_qwWaveAnal->rootContext()->setContextProperty("waveModel", m_qwWaveData);
 
-    tabw->addTab(m_qwWaveAnal, QStringLiteral("波形分析 - 随机样例"));
+    tabw->addTab(m_qwWaveAnal, QStringLiteral("波形分析 - 随机样例1"));
+
+    m_qwWaveAnal2 = new QQuickWidget();
+    m_qwWaveAnal2->setObjectName(QStringLiteral("qwWaveAnal"));
+    m_qwWaveAnal2->setResizeMode(QQuickWidget::SizeRootObjectToView );
+    component = new QQmlComponent(m_qwWaveAnal2->engine());
+    component->setData("import QtQuick 2.4\n import XjQmlUi 1.0 \n WaveChartAnal{}", QUrl());
+    m_qwWaveAnal2->setContent(QUrl(), component, component->create());
+    m_qwWaveData2 = new WaveAnalDataModel();
+
+    for (int i = 0; i < 10; ++i)
+    {
+        int nMax = 10000;
+        int nCount = 1600;
+        QList<int> x = random(nMax, nCount);
+        QList<int> y = random(nMax, nCount);
+
+        for (int j = 0; j < nCount; ++j)
+        {
+            m_qwWaveData2->append_x(i, x.at(j) - nMax / 2);
+            m_qwWaveData2->append_y(i, y.at(j) - nMax / 2);
+        }
+    }
+    m_qwWaveAnal2->rootContext()->setContextProperty("waveModel", m_qwWaveData2);
+
+    tabw->addTab(m_qwWaveAnal2, QStringLiteral("波形分析 - 随机样例2"));
+}
+
+void MainWindow::currentChanged(int index)
+{
+    qDebug() << index;
+
+    if (m_qwWaveData->test() == "1")
+        m_qwWaveData->setTest("0");
+    else
+        m_qwWaveData->setTest("1");
+
+    if (m_qwWaveData2->test() == "1")
+        m_qwWaveData2->setTest("0");
+    else
+        m_qwWaveData2->setTest("1");
 }
 
 /**

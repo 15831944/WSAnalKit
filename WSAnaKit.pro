@@ -34,8 +34,7 @@ SOURCES += main.cpp\
     common/globalfun.cpp \
     common/XJString.cpp \
     qcustomplot.cpp \
-    WaveWidget.cpp \
-    waveanaldatamodel.cpp
+    WaveWidget.cpp
 
 HEADERS  += mainwindow.h \
     anakit.h \
@@ -57,8 +56,7 @@ HEADERS  += mainwindow.h \
     analyzer/ScanDissectPacketer.h \
     common/Lock.h \
     qcustomplot.h \
-    WaveWidget.h \
-    waveanaldatamodel.h
+    WaveWidget.h
 
 win32{
     DEFINES += OS_WINDOWS
@@ -73,6 +71,8 @@ RESOURCES += \
     $$[QT_INSTALL_QML]/icons/icons_all.qrc
 
 FORMS    += mainwindow.ui
+
+include(stores/stores.pri)
 
 message($$OUT_PWD)
 

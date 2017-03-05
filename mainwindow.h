@@ -55,6 +55,8 @@ private slots:
 
     void mouseWheel(QWheelEvent* event);
 
+    void currentChanged(int index);
+
 private:
 
     //重画定位线，传入鼠标点击位置的x轴坐标
@@ -65,7 +67,9 @@ private:
     QCPGraph *m_mouseGraph; //鼠标点击位置的定位线
 
     QQuickWidget *m_qwWaveAnal; // Qml波形分析图
+    QQuickWidget *m_qwWaveAnal2; // Qml波形分析图2
     WaveAnalDataModel *m_qwWaveData; // Qml波形分析数据
+    WaveAnalDataModel *m_qwWaveData2; // Qml波形分析数据2
 
     double m_SampleNum;  //采样点个数
     double m_chnlNum;   //通道个数
