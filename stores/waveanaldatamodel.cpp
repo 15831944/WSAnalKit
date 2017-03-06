@@ -3,7 +3,11 @@
 #include <QTime>
 
 WaveAnalDataModel::WaveAnalDataModel(QObject *parent)
-    : QObject(parent), m_test(QStringLiteral("mac address"))
+    : QObject(parent)
+    , m_test(QStringLiteral("mac address"))
+    , m_mac2(QString("00-00-00-00-00-00"))
+    , m_ip2(QString())
+    , m_appid(QString("SMV Ox00"))
 {
 
 }
